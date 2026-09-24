@@ -1,0 +1,36 @@
+[project]
+name = "bet-breed-mlops"
+version = "0.1.0"
+description = "Bet breed prediction deployment"
+readme = "README.md"
+authors = [
+    { name = "Mohamedkhaled123-dot", email = "mohamedme5a12@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "dvc>=3.67.1",
+    "numpy>=2.5.3",
+    "opencv-python>=5.0.0.93",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.5",
+    "pytest>=9.1.1",
+    "torch>=2.14.0",
+    "torchvision>=0.29.0",
+]
+
+[project.scripts]
+bet-breed-mlops = "bet_breed_mlops:main"
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchvision = { index = "pytorch" }
