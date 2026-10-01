@@ -320,8 +320,15 @@ def generate_dataset() -> None:
 
     project_root = Path(__file__).resolve().parents[1]
 
-    raw_root = project_root / "data" / "raw"
+    # Existing train / val / test
+    input_root = (
+        project_root
+        / "data"
+        / "raw"
+        / "split"
+    )
 
+    # V3 output
     output_root = (
         project_root
         / "data"
@@ -334,63 +341,79 @@ def generate_dataset() -> None:
         exist_ok=True,
     )
 
-    dataset = OxfordIIITPet(
-        root=raw_root,
-        split="trainval",
-        target_types="category",
-        download=False,
-    )
-
     rng = random.Random(SEED)
 
+    total_images = 0
+
+    for split in ["train", "val", "test"]:
+
+        split_input = input_root / split
+        split_output = output_root / split
+
+        if not split_input.exists():
+            raise FileNotFoundError(
+                f"Missing split directory: {split_input}"
+            )
+
+        print(f"\nProcessing {split}...")
+
+        image_paths = [
+            path
+            for path in split_input.rglob("*")
+            if path.suffix.lower()
+            in {".jpg", ".jpeg", ".png"}
+        ]
+
+        print(
+            f"Found {len(image_paths)} images."
+        )
+
+        for image_path in image_paths:
+
+            relative_path = image_path.relative_to(
+                split_input
+            )
+
+            output_path = (
+                split_output / relative_path
+            )
+
+            output_path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            image = Image.open(
+                image_path
+            ).convert("RGB")
+
+            image = np.array(image)
+
+            drifted_image = apply_context_drift(
+                image,
+                rng,
+            )
+
+            Image.fromarray(
+                drifted_image
+            ).save(
+                output_path,
+                quality=90,
+            )
+
+            total_images += 1
+
     print(
-        f"Generating V3 context drift dataset: "
-        f"{len(dataset)} images"
+        "\nV3 context drift dataset generation completed."
     )
 
-    for index in range(len(dataset)):
-
-        image, label = dataset[index]
-
-        image = np.array(
-            image.convert("RGB")
-        )
-
-        drifted_image = apply_context_drift(
-            image,
-            rng,
-        )
-
-        class_name = dataset.classes[label]
-
-        class_dir = (
-            output_root / class_name
-        )
-
-        class_dir.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
-
-        output_path = (
-            class_dir / f"{index:05d}.jpg"
-        )
-
-        Image.fromarray(
-            drifted_image
-        ).save(
-            output_path,
-            quality=90,
-        )
-
     print(
-        "V3 context drift dataset generation completed."
+        f"Total images: {total_images}"
     )
 
     print(
         f"Output directory: {output_root}"
     )
-
 
 if __name__ == "__main__":
     generate_dataset()

@@ -4,7 +4,6 @@ import random
 import cv2
 import numpy as np
 from PIL import Image
-from torchvision.datasets import OxfordIIITPet
 
 
 SEED = 42
@@ -14,15 +13,14 @@ def apply_realistic_effects(
     image: np.ndarray,
     rng: random.Random,
 ) -> np.ndarray:
-    
     """
     Apply realistic smartphone-like image degradations
     to simulate real-world camera/data drift.
     """
+
     image = np.asarray(image, dtype=np.uint8)
-    # --------------------------------------------------
-    # 1. Brightness + Contrast variation
-    # --------------------------------------------------
+
+    # 1. Brightness + Contrast
     if rng.random() < 0.40:
 
         brightness = rng.uniform(0.85, 1.15)
@@ -37,9 +35,7 @@ def apply_realistic_effects(
 
         image = np.clip(image, 0, 255)
 
-    # --------------------------------------------------
     # 2. Color variation
-    # --------------------------------------------------
     if rng.random() < 0.30:
 
         hsv = cv2.cvtColor(
@@ -47,7 +43,6 @@ def apply_realistic_effects(
             cv2.COLOR_RGB2HSV,
         )
 
-        # Hue
         hue_shift = rng.randint(-8, 8)
 
         hsv[:, :, 0] = (
@@ -55,7 +50,6 @@ def apply_realistic_effects(
             + hue_shift
         ) % 180
 
-        # Saturation
         saturation_scale = rng.uniform(0.88, 1.12)
 
         hsv[:, :, 1] = np.clip(
@@ -65,7 +59,6 @@ def apply_realistic_effects(
             255,
         )
 
-        # Brightness / Value
         value_scale = rng.uniform(0.92, 1.08)
 
         hsv[:, :, 2] = np.clip(
@@ -80,15 +73,12 @@ def apply_realistic_effects(
             cv2.COLOR_HSV2RGB,
         )
 
-    # --------------------------------------------------
     # 3. Blur
-    # --------------------------------------------------
     if rng.random() < 0.20:
 
-        if rng.random() < 0.5:
+        kernel_size = rng.choice([3, 5])
 
-            # Gaussian blur
-            kernel_size = rng.choice([3, 5])
+        if rng.random() < 0.5:
 
             image = cv2.GaussianBlur(
                 image,
@@ -97,9 +87,6 @@ def apply_realistic_effects(
             )
 
         else:
-
-            # Motion-like blur
-            kernel_size = rng.choice([3, 5])
 
             kernel = np.zeros(
                 (kernel_size, kernel_size)
@@ -115,9 +102,7 @@ def apply_realistic_effects(
                 kernel,
             )
 
-    # --------------------------------------------------
     # 4. Gaussian noise
-    # --------------------------------------------------
     if rng.random() < 0.15:
 
         noise_rng = np.random.default_rng(
@@ -136,9 +121,7 @@ def apply_realistic_effects(
             255,
         )
 
-    # --------------------------------------------------
     # 5. Small rotation
-    # --------------------------------------------------
     if rng.random() < 0.15:
 
         angle = rng.uniform(-10, 10)
@@ -163,9 +146,7 @@ def apply_realistic_effects(
             borderMode=cv2.BORDER_REFLECT,
         )
 
-    # --------------------------------------------------
     # 6. Small crop / zoom
-    # --------------------------------------------------
     if rng.random() < 0.20:
 
         height, width = image.shape[:2]
@@ -196,47 +177,46 @@ def apply_realistic_effects(
             interpolation=cv2.INTER_LINEAR,
         )
 
-    # --------------------------------------------------
     # 7. Resolution variation
-    # --------------------------------------------------
     if rng.random() < 0.30:
 
         height, width = image.shape[:2]
 
         scale = rng.uniform(0.50, 0.75)
 
-        small_width = max(1, int(width * scale))
-        small_height = max(1, int(height * scale))
+        small_width = max(
+            1,
+            int(width * scale),
+        )
 
-        # Reduce resolution
+        small_height = max(
+            1,
+            int(height * scale),
+        )
+
         image = cv2.resize(
             image,
             (small_width, small_height),
             interpolation=cv2.INTER_AREA,
         )
 
-        # Resize back
         image = cv2.resize(
             image,
             (width, height),
             interpolation=cv2.INTER_LINEAR,
         )
 
-    # --------------------------------------------------
     # 8. JPEG compression
-    # --------------------------------------------------
     if rng.random() < 0.30:
 
         quality = rng.randint(70, 90)
 
-        # Make sure OpenCV receives a valid uint8 image
         image = np.clip(
             image,
             0,
             255,
         ).astype(np.uint8)
 
-        # RGB -> BGR
         bgr_image = cv2.cvtColor(
             image,
             cv2.COLOR_RGB2BGR,
@@ -262,17 +242,27 @@ def apply_realistic_effects(
                 decoded,
                 cv2.COLOR_BGR2RGB,
             )
+
     return np.clip(
-    image,
-    0,
-    255,).astype(np.uint8)
+        image,
+        0,
+        255,
+    ).astype(np.uint8)
+
 
 def generate_dataset() -> None:
 
     project_root = Path(__file__).resolve().parents[1]
 
-    raw_root = project_root / "data" / "raw"
+    # Existing train / val / test
+    input_root = (
+        project_root
+        / "data"
+        / "raw"
+        / "split"
+    )
 
+    # V2 output
     output_root = (
         project_root
         / "data"
@@ -285,61 +275,71 @@ def generate_dataset() -> None:
         exist_ok=True,
     )
 
-    dataset = OxfordIIITPet(
-        root=raw_root,
-        split="trainval",
-        target_types="category",
-        download=False,
-    )
-
     rng = random.Random(SEED)
 
-    print(
-        f"Generating V2 realistic dataset: "
-        f"{len(dataset)} images"
-    )
+    total_images = 0
 
-    for index in range(len(dataset)):
+    for split in ["train", "val", "test"]:
 
-        image, label = dataset[index]
+        split_input = input_root / split
+        split_output = output_root / split
 
-        image = np.array(
-            image.convert("RGB")
+        if not split_input.exists():
+            raise FileNotFoundError(
+                f"Missing split directory: {split_input}"
+            )
+
+        print(f"\nProcessing {split}...")
+
+        image_paths = [
+            path
+            for path in split_input.rglob("*")
+            if path.suffix.lower()
+            in {".jpg", ".jpeg", ".png"}
+        ]
+
+        print(
+            f"Found {len(image_paths)} images."
         )
 
-        realistic_image = apply_realistic_effects(
-            image,
-            rng,
-        )
-        
+        for image_path in image_paths:
 
-        class_name = dataset.classes[label]
+            relative_path = image_path.relative_to(
+                split_input
+            )
 
-        class_dir = output_root / class_name
+            output_path = (
+                split_output / relative_path
+            )
 
-        class_dir.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
+            output_path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
 
-        output_path = (
-            class_dir / f"{index:05d}.jpg"
-        )
+            image = Image.open(
+                image_path
+            ).convert("RGB")
 
-        Image.fromarray(
-            realistic_image
-        ).save(
-            output_path,
-            quality=90,
-        )
+            image = np.array(image)
 
-    print(
-        "V2 realistic dataset generation completed."
-    )
+            realistic_image = apply_realistic_effects(
+                image,
+                rng,
+            )
 
-    print(
-        f"Output directory: {output_root}"
-    )
+            Image.fromarray(
+                realistic_image
+            ).save(
+                output_path,
+                quality=90,
+            )
+
+            total_images += 1
+
+    print("\nV2 realistic dataset generation completed.")
+    print(f"Total images: {total_images}")
+    print(f"Output directory: {output_root}")
 
 
 if __name__ == "__main__":
