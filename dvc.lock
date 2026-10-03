@@ -1,0 +1,37 @@
+schema: '2.0'
+stages:
+  build_manifest:
+    cmd: uv run python scripts/build_manifest.py
+    deps:
+    - path: data/raw/split
+      hash: md5
+      md5: 02600aa67273fc2714f8a56f6dc64131.dir
+      size: 790860970
+      nfiles: 7349
+    - path: scripts/build_manifest.py
+      hash: md5
+      md5: 812b39de928d80a13148ad129c76c81b
+      size: 3385
+    outs:
+    - path: data/metadata/manifest.json
+      hash: md5
+      md5: e01e5771038c1dc517578e48b0645926
+      size: 2366977
+  generate_corruptions:
+    cmd: uv run python src/bet_breed_mlops/corruptions.py
+    deps:
+    - path: data/raw/split/test
+      hash: md5
+      md5: 98bf7b1fa4434e08ddbfd288da0d244a.dir
+      size: 412898831
+      nfiles: 3669
+    - path: src/bet_breed_mlops/corruptions.py
+      hash: md5
+      md5: 8304366bb017d4ef8ea7f6b1ce6dea88
+      size: 6853
+    outs:
+    - path: data/processed/corrupted_test
+      hash: md5
+      md5: a848d3a7fd7e7d6388dab217892aa752.dir
+      size: 1573655484
+      nfiles: 66042

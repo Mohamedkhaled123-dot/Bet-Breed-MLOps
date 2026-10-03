@@ -282,7 +282,7 @@ def generate_corrupted_dataset(
 
 if __name__ == "__main__":
 
-    project_root = Path(__file__).resolve().parents[1]
+    project_root = Path(__file__).resolve().parents[2]
 
     test_dir = (
         project_root
@@ -304,6 +304,7 @@ if __name__ == "__main__":
         output_dir,
     )
 
+    print (project_root)
     print(
         "Corrupted dataset generated successfully."
     )

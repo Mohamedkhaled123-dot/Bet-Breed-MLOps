@@ -1,0 +1,17 @@
+stages:
+
+  build_manifest:
+    cmd: uv run python scripts/build_manifest.py
+    deps:
+      - scripts/build_manifest.py
+      - data/raw/split
+    outs:
+      - data/metadata/manifest.json
+
+  generate_corruptions:
+    cmd: uv run python src/bet_breed_mlops/corruptions.py
+    deps:
+      - src/bet_breed_mlops/corruptions.py
+      - data/raw/split/test
+    outs:
+      - data/processed/corrupted_test
