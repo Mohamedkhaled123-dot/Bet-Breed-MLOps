@@ -5,11 +5,9 @@ from PIL import Image
 
 from bet_breed_mlops.confidence import (
     DEFAULT_CONFIDENCE_THRESHOLD,
-    load_class_names,
     load_temperature,
-    predict_with_confidence,
+    predict_image,
 )
-from bet_breed_mlops.data import val_transform
 from bet_breed_mlops.model import PetBreedClassifier
 
 
@@ -63,29 +61,9 @@ def load_model() -> torch.nn.Module:
     )
 
     model = model.to(DEVICE)
-
     model.eval()
 
     return model
-
-
-# --------------------------------------------------
-# Load image
-# --------------------------------------------------
-
-def load_image(
-    image_path: Path,
-) -> torch.Tensor:
-
-    image = Image.open(
-        image_path
-    ).convert("RGB")
-
-    image = val_transform(image)
-
-    image = image.unsqueeze(0)
-
-    return image
 
 
 # --------------------------------------------------
@@ -96,58 +74,19 @@ def predict() -> None:
 
     print(f"Device: {DEVICE}")
 
-    # -----------------------------
-    # Load model
-    # -----------------------------
-
     model = load_model()
 
-    # -----------------------------
-    # Load image
-    # -----------------------------
-
-    image = load_image(
+    image = Image.open(
         IMAGE_PATH
+    ).convert("RGB")
+
+    result = predict_image(
+        model=model,
+        image=image,
+        threshold=DEFAULT_CONFIDENCE_THRESHOLD,
     )
-
-    image = image.to(
-        DEVICE,
-        non_blocking=True,
-    )
-
-    # -----------------------------
-    # Model inference
-    # -----------------------------
-
-    with torch.no_grad():
-
-        logits = model(image)
-
-    # Remove batch dimension
-    logits = logits.squeeze(0).cpu()
-
-    # -----------------------------
-    # Calibration
-    # -----------------------------
 
     temperature = load_temperature()
-
-    class_names = load_class_names()
-
-    # -----------------------------
-    # Confidence prediction
-    # -----------------------------
-
-    result = predict_with_confidence(
-        logits=logits,
-        temperature=temperature,
-        threshold=DEFAULT_CONFIDENCE_THRESHOLD,
-        class_names=class_names,
-    )
-
-    # -----------------------------
-    # Print result
-    # -----------------------------
 
     print()
     print("Prediction")

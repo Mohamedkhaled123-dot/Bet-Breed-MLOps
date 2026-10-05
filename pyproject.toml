@@ -8,17 +8,26 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
+    "bentoml>=1.4.39",
     "dvc>=3.67.1",
+    "fastapi>=0.142.2",
+    "httpx2>=2.13.1",
     "matplotlib>=3.11.2",
     "mlflow>=3.16.1",
     "numpy>=2.5.3",
+    "onnx>=1.23.1",
+    "onnxruntime-gpu>=1.30.0",
+    "onnxscript>=0.7.2",
     "opencv-python>=5.0.0.93",
+    "openvino>=2026.4.1",
     "pillow>=12.3.0",
     "pydantic>=2.13.5",
     "pytest>=9.1.1",
+    "python-multipart>=0.0.32",
     "scikit-learn>=1.9.1",
     "torch>=2.14.0",
     "torchvision>=0.29.0",
+    "uvicorn>=0.54.0",
 ]
 
 [project.scripts]

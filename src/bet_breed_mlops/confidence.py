@@ -24,7 +24,7 @@ CALIBRATION_PATH = (
 
 # Operational default.
 # This is configurable and is NOT a "best" threshold.
-DEFAULT_CONFIDENCE_THRESHOLD = 0.80
+DEFAULT_CONFIDENCE_THRESHOLD = 0.85
 
 
 @dataclass(frozen=True)
@@ -126,7 +126,7 @@ def predict_with_confidence(
 def predict_image(
     model,
     image,
-    threshold: float = 0.85,
+    threshold: float = DEFAULT_CONFIDENCE_THRESHOLD
 ):
     """
     Run the complete inference pipeline:
@@ -141,6 +141,12 @@ def predict_image(
     image = image.convert("RGB")
 
     input_tensor = eval_transform(image).unsqueeze(0)
+
+    try:
+        device = next(model.parameters()).device
+        input_tensor = input_tensor.to(device)
+    except StopIteration:
+        pass
 
     with torch.inference_mode():
         logits = model(input_tensor)
