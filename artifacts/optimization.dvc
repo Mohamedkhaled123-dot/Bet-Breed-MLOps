@@ -1,0 +1,6 @@
+outs:
+- md5: c084b5b009a1a17d0139f3be684b40f7.dir
+  size: 62629547
+  nfiles: 3
+  hash: md5
+  path: optimization

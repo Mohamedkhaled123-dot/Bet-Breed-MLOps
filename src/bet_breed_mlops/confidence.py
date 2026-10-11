@@ -24,7 +24,7 @@ CALIBRATION_PATH = (
 
 # Operational default.
 # This is configurable and is NOT a "best" threshold.
-DEFAULT_CONFIDENCE_THRESHOLD = 0.85
+DEFAULT_CONFIDENCE_THRESHOLD = 0.80
 
 
 @dataclass(frozen=True)
@@ -33,6 +33,35 @@ class PredictionResult:
     confidence: float
     breed: str | None
     is_confident: bool
+
+
+def select_confidence_threshold(
+    results: list[dict],
+    minimum_selective_accuracy: float,
+) -> dict:
+    if not 0.0 <= minimum_selective_accuracy <= 1.0:
+        raise ValueError(
+            "Minimum selective accuracy must be between 0 and 1."
+        )
+
+    eligible = [
+        result
+        for result in results
+        if result["accepted"] > 0
+        and result["accepted_accuracy"] >= minimum_selective_accuracy
+    ]
+    if not eligible:
+        raise ValueError(
+            "No candidate threshold meets the minimum selective accuracy."
+        )
+
+    return max(
+        eligible,
+        key=lambda result: (
+            result["coverage"],
+            -result["threshold"],
+        ),
+    )
 
 
 def load_temperature() -> float:
@@ -56,6 +85,34 @@ def load_class_names() -> dict[int, str]:
     return {
         int(class_index): breed
         for breed, class_index in label_map.items()
+    }
+
+
+def load_class_species() -> dict[int, str]:
+    with MANIFEST_PATH.open(
+        "r",
+        encoding="utf-8",
+    ) as file:
+        manifest = json.load(file)
+
+    breed_to_index = manifest["label_map"]
+    species_by_breed = {}
+
+    for record in manifest["images"]:
+        species_by_breed.setdefault(
+            record["breed"],
+            record["species"],
+        )
+
+    missing_breeds = set(breed_to_index) - set(species_by_breed)
+    if missing_breeds:
+        raise ValueError(
+            f"Manifest has no species for breeds: {sorted(missing_breeds)}"
+        )
+
+    return {
+        int(class_index): species_by_breed[breed]
+        for breed, class_index in breed_to_index.items()
     }
 
 

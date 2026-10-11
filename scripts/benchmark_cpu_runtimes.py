@@ -1,5 +1,6 @@
-from pathlib import Path
+import json
 import time
+from pathlib import Path
 
 import numpy as np
 import onnxruntime as ort
@@ -8,8 +9,8 @@ from PIL import Image
 
 from bet_breed_mlops.data import eval_transform
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPORT_PATH = PROJECT_ROOT / "reports" / "cpu_inference_benchmark.json"
 
 ONNX_PATH = (
     PROJECT_ROOT
@@ -154,6 +155,21 @@ def print_results(
     print(f"Throughput   : {throughput:.2f} images/sec")
 
 
+def summarize(name: str, times: list[float]) -> dict:
+    values = np.asarray(times, dtype=np.float64)
+    return {
+        "runtime": name,
+        "device": "CPU",
+        "warmup_runs": WARMUP_RUNS,
+        "timed_runs": BENCHMARK_RUNS,
+        "mean_latency_ms": float(np.mean(values)),
+        "p50_latency_ms": float(np.percentile(values, 50)),
+        "p95_latency_ms": float(np.percentile(values, 95)),
+        "p99_latency_ms": float(np.percentile(values, 99)),
+        "throughput_images_per_second": float(1000 / np.mean(values)),
+    }
+
+
 def main() -> None:
 
     print("CPU Runtime Benchmark")
@@ -180,6 +196,18 @@ def main() -> None:
         "OpenVINO CPU",
         openvino_times,
     )
+    report = {
+        "onnx_model": str(ONNX_PATH.relative_to(PROJECT_ROOT)),
+        "input_image": str(IMAGE_PATH.relative_to(PROJECT_ROOT)),
+        "input_shape": [1, 3, 224, 224],
+        "results": [
+            summarize("ONNX Runtime", ort_times),
+            summarize("OpenVINO", openvino_times),
+        ],
+    }
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    print(f"Report: {REPORT_PATH}")
 
 
 if __name__ == "__main__":

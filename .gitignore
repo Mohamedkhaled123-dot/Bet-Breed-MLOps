@@ -12,9 +12,64 @@ wheels/
 mlruns/
 # ML artifacts
 artifacts/
-reports/
+!artifacts/
+artifacts/*
+!artifacts/*.dvc
+!artifacts/models/
+artifacts/models/*
+!artifacts/models/*.dvc
+!artifacts/checkpoints/
+artifacts/checkpoints/*
+!artifacts/checkpoints/*.dvc
+!artifacts/tensorrt/
+artifacts/tensorrt/*
+!artifacts/tensorrt/*.dvc
+!artifacts/optimization/
+artifacts/optimization/*
+!artifacts/optimization/*.dvc
+!artifacts/experiments/
+artifacts/experiments/*
+!artifacts/experiments/checkpoints/
+artifacts/experiments/checkpoints/*
+!artifacts/experiments/checkpoints/*.dvc
+!reports/
+reports/*
+!reports/copilot_implementation_report.md
+!reports/calibration.png
+!reports/calibration_metrics.json
+!reports/confidence_evaluation.json
+!reports/mlflow_comparison.json
+!reports/mlflow_comparison.png
+!reports/optimization_benchmark.json
+!reports/drift_detector_scorecard.json
+!reports/drift_detector_scorecard.png
+!reports/onnx_parity.json
+!reports/cpu_inference_benchmark.json
+!reports/quality_gate.json
+!reports/locust_before_optimization.html
+!reports/locust_after_optimization.html
+!reports/evidently/
+reports/evidently/*
+!reports/evidently/latest_batch_drift.html
 
 # MLflow
 mlartifacts/
 mlflow.db
 typings/
+
+# Local configuration backups
+backups/
+
+# Local inventories and deployment backups
+/project_inventory.txt
+/.deployment-backup-*/
+
+# Large generated HTML drift report
+/reports/evidently/latest_batch_drift.html
+
+# CI/CD workflow deferred until configuration is ready
+/.github/workflows/ci.yml
+
+# Small deployment calibration artifact
+!artifacts/calibration/
+!artifacts/calibration/temperature.pt

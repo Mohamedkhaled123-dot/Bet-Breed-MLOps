@@ -1,0 +1,97 @@
+{
+    "dataset": "validation",
+    "num_samples": 736,
+    "temperature": 0.8595333695411682,
+    "minimum_selective_accuracy": 0.98,
+    "selected_threshold": {
+        "threshold": 0.8,
+        "total_samples": 736,
+        "accepted": 498,
+        "not_sure": 238,
+        "coverage": 0.6766304347826086,
+        "accepted_accuracy": 0.9879518151283264
+    },
+    "selection_rule": "Maximum validation coverage among listed thresholds whose selective accuracy meets the required minimum.",
+    "results": [
+        {
+            "threshold": 0.5,
+            "total_samples": 736,
+            "accepted": 666,
+            "not_sure": 70,
+            "coverage": 0.904891304347826,
+            "accepted_accuracy": 0.9264264106750488
+        },
+        {
+            "threshold": 0.55,
+            "total_samples": 736,
+            "accepted": 641,
+            "not_sure": 95,
+            "coverage": 0.8709239130434783,
+            "accepted_accuracy": 0.9422776699066162
+        },
+        {
+            "threshold": 0.6,
+            "total_samples": 736,
+            "accepted": 617,
+            "not_sure": 119,
+            "coverage": 0.8383152173913043,
+            "accepted_accuracy": 0.9562398791313171
+        },
+        {
+            "threshold": 0.65,
+            "total_samples": 736,
+            "accepted": 594,
+            "not_sure": 142,
+            "coverage": 0.8070652173913043,
+            "accepted_accuracy": 0.9629629850387573
+        },
+        {
+            "threshold": 0.7,
+            "total_samples": 736,
+            "accepted": 567,
+            "not_sure": 169,
+            "coverage": 0.7703804347826086,
+            "accepted_accuracy": 0.9664903283119202
+        },
+        {
+            "threshold": 0.75,
+            "total_samples": 736,
+            "accepted": 527,
+            "not_sure": 209,
+            "coverage": 0.7160326086956522,
+            "accepted_accuracy": 0.9791271090507507
+        },
+        {
+            "threshold": 0.8,
+            "total_samples": 736,
+            "accepted": 498,
+            "not_sure": 238,
+            "coverage": 0.6766304347826086,
+            "accepted_accuracy": 0.9879518151283264
+        },
+        {
+            "threshold": 0.85,
+            "total_samples": 736,
+            "accepted": 463,
+            "not_sure": 273,
+            "coverage": 0.6290760869565217,
+            "accepted_accuracy": 0.9913606643676758
+        },
+        {
+            "threshold": 0.9,
+            "total_samples": 736,
+            "accepted": 408,
+            "not_sure": 328,
+            "coverage": 0.5543478260869565,
+            "accepted_accuracy": 0.9950980544090271
+        },
+        {
+            "threshold": 0.95,
+            "total_samples": 736,
+            "accepted": 312,
+            "not_sure": 424,
+            "coverage": 0.42391304347826086,
+            "accepted_accuracy": 1.0
+        }
+    ]
+}

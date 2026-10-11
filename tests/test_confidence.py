@@ -5,6 +5,7 @@ from bet_breed_mlops.confidence import (
     apply_temperature,
     predict_with_confidence,
     predict_image,
+    select_confidence_threshold,
 )
 
 
@@ -110,6 +111,51 @@ def test_threshold_must_be_valid():
             temperature=1.0,
             threshold=1.5,
             class_names=class_names,
+        )
+
+
+def test_threshold_selection_maximizes_coverage_at_accuracy_floor():
+    results = [
+        {
+            "threshold": 0.70,
+            "accepted": 80,
+            "coverage": 0.8,
+            "accepted_accuracy": 0.97,
+        },
+        {
+            "threshold": 0.80,
+            "accepted": 60,
+            "coverage": 0.6,
+            "accepted_accuracy": 0.98,
+        },
+        {
+            "threshold": 0.90,
+            "accepted": 40,
+            "coverage": 0.4,
+            "accepted_accuracy": 0.99,
+        },
+    ]
+
+    selected = select_confidence_threshold(
+        results,
+        minimum_selective_accuracy=0.98,
+    )
+
+    assert selected["threshold"] == 0.80
+
+
+def test_threshold_selection_fails_when_accuracy_floor_is_unmet():
+    with pytest.raises(ValueError, match="No candidate threshold"):
+        select_confidence_threshold(
+            [
+                {
+                    "threshold": 0.9,
+                    "accepted": 10,
+                    "coverage": 0.1,
+                    "accepted_accuracy": 0.8,
+                }
+            ],
+            minimum_selective_accuracy=0.98,
         )
 
 

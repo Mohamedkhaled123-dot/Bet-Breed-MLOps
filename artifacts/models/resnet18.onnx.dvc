@@ -1,0 +1,5 @@
+outs:
+- md5: 326771c34fe6fa62819be224570cd1b4
+  size: 111894
+  hash: md5
+  path: resnet18.onnx

@@ -1,0 +1,9 @@
+{
+  "checkpoint": "artifacts\\checkpoints\\resnet18.pt",
+  "validation_examples": 736,
+  "production_baseline_top1": 0.89673912525177,
+  "candidate_top1": 0.8967391304347826,
+  "maximum_top1_drop": 0.01,
+  "quality_gate_floor": 0.88673912525177,
+  "passed": true
+}

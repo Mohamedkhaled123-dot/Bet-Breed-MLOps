@@ -1,11 +1,14 @@
 from pathlib import Path
+import json
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 
 from bet_breed_mlops.data import create_dataloaders
 from bet_breed_mlops.model import PetBreedClassifier
-
 
 # --------------------------------------------------
 # Configuration
@@ -29,6 +32,18 @@ CALIBRATION_PATH = (
     / "artifacts"
     / "calibration"
     / "temperature.pt"
+)
+
+CALIBRATION_REPORT_PATH = (
+    PROJECT_ROOT
+    / "reports"
+    / "calibration_metrics.json"
+)
+
+RELIABILITY_DIAGRAM_PATH = (
+    PROJECT_ROOT
+    / "reports"
+    / "calibration.png"
 )
 
 
@@ -147,6 +162,81 @@ def calculate_ece(
     return ece.item()
 
 
+def reliability_bins(
+    logits: torch.Tensor,
+    labels: torch.Tensor,
+    n_bins: int = 15,
+) -> tuple[list[float], list[float], list[int]]:
+    probabilities = torch.softmax(logits, dim=1)
+    confidences, predictions = probabilities.max(dim=1)
+    accuracies = predictions.eq(labels)
+    boundaries = torch.linspace(0.0, 1.0, n_bins + 1)
+
+    mean_confidences = []
+    mean_accuracies = []
+    bin_counts = []
+
+    for index in range(n_bins):
+        lower = boundaries[index]
+        upper = boundaries[index + 1]
+        if index == n_bins - 1:
+            in_bin = (confidences >= lower) & (confidences <= upper)
+        else:
+            in_bin = (confidences >= lower) & (confidences < upper)
+
+        count = int(in_bin.sum().item())
+        if count:
+            mean_confidences.append(
+                float(confidences[in_bin].mean().item())
+            )
+            mean_accuracies.append(
+                float(accuracies[in_bin].float().mean().item())
+            )
+            bin_counts.append(count)
+
+    return mean_confidences, mean_accuracies, bin_counts
+
+
+def save_reliability_diagram(
+    logits: torch.Tensor,
+    labels: torch.Tensor,
+    calibrated_logits: torch.Tensor,
+    output_path: Path = RELIABILITY_DIAGRAM_PATH,
+) -> Path:
+    before_confidence, before_accuracy, _ = reliability_bins(
+        logits,
+        labels,
+    )
+    after_confidence, after_accuracy, _ = reliability_bins(
+        calibrated_logits,
+        labels,
+    )
+
+    figure, axes = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True)
+    for axis, confidences, accuracies, title in (
+        (axes[0], before_confidence, before_accuracy, "Before temperature scaling"),
+        (axes[1], after_confidence, after_accuracy, "After temperature scaling"),
+    ):
+        axis.plot([0, 1], [0, 1], linestyle="--", color="gray", label="Perfect calibration")
+        axis.plot(confidences, accuracies, marker="o", label="ResNet-18")
+        axis.set(
+            title=f"{title} (ECE={calculate_ece(logits if axis is axes[0] else calibrated_logits, labels):.4f})",
+            xlabel="Mean confidence",
+            ylabel="Empirical accuracy",
+            xlim=(0, 1),
+            ylim=(0, 1),
+        )
+        axis.grid(alpha=0.25)
+        axis.legend(loc="lower right")
+
+    figure.suptitle("Validation-set reliability diagram (15 equal-width bins)")
+    figure.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    figure.savefig(output_path, dpi=160, bbox_inches="tight")
+    plt.close(figure)
+    return output_path
+
+
 # --------------------------------------------------
 # Fit Temperature
 # --------------------------------------------------
@@ -156,14 +246,14 @@ def fit_temperature(
     labels: torch.Tensor,
 ) -> float:
 
-    temperature = nn.Parameter(
-        torch.ones(1)
+    log_temperature = nn.Parameter(
+        torch.zeros(1)
     )
 
     criterion = nn.CrossEntropyLoss()
 
     optimizer = torch.optim.LBFGS(
-        [temperature],
+        [log_temperature],
         lr=0.01,
         max_iter=50,
     )
@@ -172,12 +262,11 @@ def fit_temperature(
 
         optimizer.zero_grad()
 
-        scaled_logits = (
-            logits / temperature.clamp(
-                min=0.01,
-                max=10.0,
-            )
-        )
+        temperature = log_temperature.clamp(
+            min=-4.605170186,
+            max=2.302585093,
+        ).exp()
+        scaled_logits = logits / temperature
 
         loss = criterion(
             scaled_logits,
@@ -190,7 +279,12 @@ def fit_temperature(
 
     optimizer.step(closure)
 
-    return temperature.item()
+    return float(
+        log_temperature.detach()
+        .clamp(min=-4.605170186, max=2.302585093)
+        .exp()
+        .item()
+    )
 
 
 # --------------------------------------------------
@@ -200,6 +294,10 @@ def fit_temperature(
 def calibrate() -> None:
 
     print(f"Device: {DEVICE}")
+    if DEVICE.type != "cuda":
+        raise RuntimeError(
+            "Calibration requires CUDA for this project run."
+        )
 
     # -----------------------------
     # Data
@@ -301,6 +399,12 @@ def calibrate() -> None:
         f"{ece_after:.4f}"
     )
 
+    diagram_path = save_reliability_diagram(
+        logits=logits,
+        labels=labels,
+        calibrated_logits=calibrated_logits,
+    )
+
     # -----------------------------
     # Save temperature
     # -----------------------------
@@ -319,11 +423,39 @@ def calibrate() -> None:
         CALIBRATION_PATH,
     )
 
+    CALIBRATION_REPORT_PATH.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+    with CALIBRATION_REPORT_PATH.open(
+        "w",
+        encoding="utf-8",
+    ) as file:
+        json.dump(
+            {
+                "checkpoint": str(CHECKPOINT_PATH.relative_to(PROJECT_ROOT)),
+                "dataset": "validation",
+                "num_samples": int(labels.numel()),
+                "device": torch.cuda.get_device_name(DEVICE),
+                "temperature": temperature,
+                "ece_before": ece_before,
+                "ece_after": ece_after,
+                "reliability_diagram": str(
+                    diagram_path.relative_to(PROJECT_ROOT)
+                ),
+                "reliability_bins": 15,
+            },
+            file,
+            indent=2,
+        )
+
     print()
     print(
-        f"Calibration saved → "
+        "Calibration saved -> "
         f"{CALIBRATION_PATH}"
     )
+    print(f"Reliability diagram saved -> {diagram_path}")
+    print(f"Calibration report saved -> {CALIBRATION_REPORT_PATH}")
 
 
 if __name__ == "__main__":

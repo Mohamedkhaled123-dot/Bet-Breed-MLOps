@@ -1,89 +1,98 @@
 import base64
 from io import BytesIO
-from pathlib import Path
 
 import bentoml
 import numpy as np
-import onnxruntime as ort
-import torch
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from pydantic import BaseModel
 
+from bet_breed_mlops.bento_model import BENTO_MODEL_NAME
 from bet_breed_mlops.confidence import (
     DEFAULT_CONFIDENCE_THRESHOLD,
     load_class_names,
+    load_class_species,
     load_temperature,
-    predict_with_confidence,
 )
 from bet_breed_mlops.data import eval_transform
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-ONNX_PATH = PROJECT_ROOT / "artifacts" / "models" / "resnet18.onnx"
+MODEL_VERSION = "resnet18-onnx-v1"
+BENTO_MODEL = bentoml.models.get(f"{BENTO_MODEL_NAME}:latest")
+onnx_runner = BENTO_MODEL.to_runner()
+svc = bentoml.legacy.Service(
+    "pet-breed-service",
+    runners=[onnx_runner],
+)
 
 
 class PredictRequest(BaseModel):
     image: str
 
 
-@bentoml.service
-class PetBreedService:
+def predict_batch(
+    requests: list[PredictRequest],
+    runner,
+) -> list[dict]:
+    tensors = []
 
-    def __init__(self):
-        self.session = ort.InferenceSession(
-            str(ONNX_PATH),
-            providers=["CPUExecutionProvider"],
+    for request in requests:
+        image_bytes = base64.b64decode(
+            request.image,
+            validate=True,
         )
-        self.input_name = self.session.get_inputs()[0].name
-        self.temperature = load_temperature()
-        self.class_names = load_class_names()
 
-    @bentoml.api(
-        batchable=True,
-        max_batch_size=32,
-        max_latency_ms=100,
-    )
-    def predict(
-        self,
-        requests: list[PredictRequest],
-    ) -> list[dict]:
+        try:
+            with Image.open(BytesIO(image_bytes)) as image:
+                tensor = eval_transform(image.convert("RGB"))
+        except (UnidentifiedImageError, OSError) as exc:
+            raise ValueError("Request image is invalid.") from exc
 
-        tensors = []
+        tensors.append(tensor.numpy())
 
-        for request in requests:
-            image_bytes = base64.b64decode(request.image)
+    batch = np.stack(tensors).astype(np.float32)
+    logits_batch = np.asarray(runner.run.run(batch))
+    class_names = load_class_names()
+    class_species = load_class_species()
+    temperature = load_temperature()
+    results = []
 
-            image = Image.open(
-                BytesIO(image_bytes)
-            ).convert("RGB")
+    for logits in logits_batch:
+        scaled_logits = logits / temperature
+        shifted = scaled_logits - np.max(scaled_logits)
+        probabilities = np.exp(shifted)
+        probabilities /= probabilities.sum()
+        top_class_ids = np.argsort(probabilities)[::-1][:3]
+        class_id = int(top_class_ids[0])
+        confidence = float(probabilities[class_id])
+        is_confident = confidence >= DEFAULT_CONFIDENCE_THRESHOLD
 
-            tensor = eval_transform(image)
-            tensors.append(tensor.numpy())
+        results.append(
+            {
+                "breed": class_names[class_id] if is_confident else None,
+                "species": class_species[class_id] if is_confident else None,
+                "confidence": confidence,
+                "top_3": [
+                    {
+                        "breed": class_names[int(index)],
+                        "species": class_species[int(index)],
+                        "confidence": float(probabilities[index]),
+                    }
+                    for index in top_class_ids
+                ],
+                "decision": "confident" if is_confident else "uncertain",
+                "model_version": MODEL_VERSION,
+                "threshold": DEFAULT_CONFIDENCE_THRESHOLD,
+                "class_id": class_id,
+            }
+        )
 
-        batch = np.stack(tensors).astype(np.float32)
+    return results
 
-        logits_batch = self.session.run(
-            None,
-            {self.input_name: batch},
-        )[0]
 
-        results = []
-
-        for logits in logits_batch:
-            result = predict_with_confidence(
-                logits=torch.from_numpy(logits),
-                temperature=self.temperature,
-                threshold=DEFAULT_CONFIDENCE_THRESHOLD,
-                class_names=self.class_names,
-            )
-
-            results.append(
-                {
-                    "class_index": result.class_index,
-                    "breed": result.breed,
-                    "confidence": result.confidence,
-                    "is_confident": result.is_confident,
-                }
-            )
-
-        return results
+@svc.api(
+    input=bentoml.io.JSON(),
+    output=bentoml.io.JSON(),
+)
+def predict(request: dict) -> dict:
+    validated_request = PredictRequest.model_validate(request)
+    return predict_batch([validated_request], onnx_runner)[0]

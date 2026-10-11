@@ -1,0 +1,5 @@
+outs:
+- md5: 2d9a691b119886a087121956d5ebf7e5
+  size: 22397897
+  hash: md5
+  path: resnet18_fp16.onnx

@@ -1,76 +1,60 @@
-from pathlib import Path
+import base64
+from io import BytesIO
 
-from bet_breed_mlops.bento_service import (
-    PetBreedService,
-    PredictRequest,
-)
+import bentoml
+from PIL import Image
+import pytest
 
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-TEST_DIR = PROJECT_ROOT / "data" / "raw" / "split" / "test"
+from bet_breed_mlops.bento_model import register_bento_model
 
 
-def get_test_image():
-    extensions = {".jpg", ".jpeg", ".png", ".webp"}
-
-    images = sorted(
-        path
-        for path in TEST_DIR.rglob("*")
-        if path.is_file()
-        and path.suffix.lower() in extensions
+@pytest.fixture(scope="module")
+def bento_runtime():
+    model = register_bento_model()
+    from bet_breed_mlops.bento_service import (
+        MODEL_VERSION,
+        onnx_runner,
+        predict_batch,
+        svc,
+        PredictRequest,
     )
 
-    assert images, "No test images found."
-
-    return images[0]
-
-
-def make_request():
-    image_path = get_test_image()
-
-    image_base64 = __import__("base64").b64encode(
-        image_path.read_bytes()
-    ).decode("utf-8")
-
-    return PredictRequest(image=image_base64)
+    onnx_runner.init_local()
+    yield model, onnx_runner, predict_batch, PredictRequest, MODEL_VERSION, svc
+    onnx_runner.destroy()
 
 
-def test_bento_single_prediction():
-    service = PetBreedService()
-
-    request = make_request()
-
-    result = service.predict([request])
-
-    assert len(result) == 1
-
-    prediction = result[0]
-
-    assert "class_index" in prediction
-    assert "breed" in prediction
-    assert "confidence" in prediction
-    assert "is_confident" in prediction
-
-    assert isinstance(prediction["class_index"], int)
-    assert 0.0 <= prediction["confidence"] <= 1.0
+def make_request(PredictRequest):
+    image = Image.new("RGB", (224, 224), color=(128, 96, 64))
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG")
+    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return PredictRequest(image=encoded)
 
 
-def test_bento_batch_prediction():
-    service = PetBreedService()
+def test_bento_model_is_registered_and_runner_is_batchable(bento_runtime):
+    model, runner, _, _, _, service = bento_runtime
 
-    request = make_request()
+    assert bentoml.models.get(str(model.tag)).tag == model.tag
+    assert model.info.signatures["run"].batchable is True
+    assert model.info.signatures["run"].batch_dim == (0, 0)
+    assert runner in service.runners
 
-    batch = [request] * 4
 
-    results = service.predict(batch)
+def test_bento_runner_scores_a_batch(bento_runtime):
+    _, runner, predict_batch, request_type, model_version, _ = bento_runtime
+    requests = [make_request(request_type) for _ in range(4)]
+
+    results = predict_batch(requests, runner)
 
     assert len(results) == 4
-
-    for prediction in results:
-        assert "class_index" in prediction
-        assert "breed" in prediction
-        assert "confidence" in prediction
-        assert "is_confident" in prediction
-
-        assert isinstance(prediction["class_index"], int)
-        assert 0.0 <= prediction["confidence"] <= 1.0
+    for result in results:
+        assert result["model_version"] == model_version
+        assert result["decision"] in {"confident", "uncertain"}
+        assert result["class_id"] in range(37)
+        assert len(result["top_3"]) == 3
+        assert 0.0 <= result["confidence"] <= 1.0
+        assert all(
+            0.0 <= prediction["confidence"] <= 1.0
+            for prediction in result["top_3"]
+        )

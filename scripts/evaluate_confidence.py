@@ -9,6 +9,7 @@ from bet_breed_mlops.calibration import (
 )
 from bet_breed_mlops.confidence import (
     load_temperature,
+    select_confidence_threshold,
 )
 from bet_breed_mlops.data import create_dataloaders
 from bet_breed_mlops.model import PetBreedClassifier
@@ -32,6 +33,8 @@ REPORT_PATH = (
     / "reports"
     / "confidence_evaluation.json"
 )
+
+MINIMUM_SELECTIVE_ACCURACY = 0.98
 
 THRESHOLDS = [
     0.50,
@@ -203,6 +206,10 @@ def evaluate() -> None:
         labels=labels,
         temperature=temperature,
     )
+    selected_threshold = select_confidence_threshold(
+        results,
+        minimum_selective_accuracy=MINIMUM_SELECTIVE_ACCURACY,
+    )
 
     # -----------------------------
     # Print report
@@ -232,6 +239,16 @@ def evaluate() -> None:
             f"{result['accepted_accuracy']:<12.4f}"
         )
 
+    print()
+    print(
+        "Selected threshold: "
+        f"{selected_threshold['threshold']:.2f} "
+        f"(coverage={selected_threshold['coverage']:.4f}, "
+        "selective_accuracy="
+        f"{selected_threshold['accepted_accuracy']:.4f}, "
+        f"minimum={MINIMUM_SELECTIVE_ACCURACY:.2f})"
+    )
+
     # -----------------------------
     # Save report
     # -----------------------------
@@ -245,6 +262,12 @@ def evaluate() -> None:
         "dataset": "validation",
         "num_samples": len(labels),
         "temperature": temperature,
+        "minimum_selective_accuracy": MINIMUM_SELECTIVE_ACCURACY,
+        "selected_threshold": selected_threshold,
+        "selection_rule": (
+            "Maximum validation coverage among listed thresholds "
+            "whose selective accuracy meets the required minimum."
+        ),
         "results": results,
     }
 
@@ -261,7 +284,7 @@ def evaluate() -> None:
 
     print()
     print(
-        f"Report saved → {REPORT_PATH}"
+        f"Report saved -> {REPORT_PATH}"
     )
 
 

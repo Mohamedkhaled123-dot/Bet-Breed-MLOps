@@ -3,9 +3,11 @@ from torchvision.models import (
     EfficientNet_B0_Weights,
     MobileNet_V3_Small_Weights,
     ResNet18_Weights,
+    ResNet50_Weights,
     efficientnet_b0,
     mobilenet_v3_small,
     resnet18,
+    resnet50,
 )
 
 
@@ -52,6 +54,27 @@ class PetBreedClassifier(nn.Module):
                 in_features,
                 num_classes,
             )
+
+        # --------------------------------------------------
+        # ResNet-50
+        # --------------------------------------------------
+
+        elif backbone_name == "resnet50":
+
+            weights = (
+                ResNet50_Weights.DEFAULT
+                if pretrained
+                else None
+            )
+
+            self.backbone = resnet50(weights=weights)
+
+            if freeze_backbone:
+                for parameter in self.backbone.parameters():
+                    parameter.requires_grad = False
+
+            in_features = self.backbone.fc.in_features
+            self.backbone.fc = nn.Linear(in_features, num_classes)
 
         # --------------------------------------------------
         # MobileNetV3-Small
@@ -110,7 +133,7 @@ class PetBreedClassifier(nn.Module):
         else:
             raise ValueError(
                 f"Unsupported backbone: {backbone_name}. "
-                "Choose from: resnet18, "
+                "Choose from: resnet18, resnet50, "
                 "mobilenet_v3_small, efficientnet_b0."
             )
 

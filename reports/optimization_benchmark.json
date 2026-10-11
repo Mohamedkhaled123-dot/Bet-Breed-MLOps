@@ -1,0 +1,145 @@
+{
+  "validation_examples": 736,
+  "calibration_examples_per_class": 4,
+  "latency_warmup": 20,
+  "latency_iterations": 100,
+  "pruning_accuracy_drop_limit": 0.01,
+  "pruning_sweep": [
+    {
+      "requested_amount": 0.02,
+      "structured_filter_sparsity": 0.019791666666666666,
+      "top1": 0.8899456262588501,
+      "macro_f1": 0.8902901098993689,
+      "ece": 0.11090366542339325,
+      "examples": 736
+    },
+    {
+      "requested_amount": 0.05,
+      "structured_filter_sparsity": 0.05,
+      "top1": 0.8491848111152649,
+      "macro_f1": 0.8504698420746086,
+      "ece": 0.11572042107582092,
+      "examples": 736
+    },
+    {
+      "requested_amount": 0.1,
+      "structured_filter_sparsity": 0.1,
+      "top1": 0.667119562625885,
+      "macro_f1": 0.6785594351561492,
+      "ece": 0.13022370636463165,
+      "examples": 736
+    },
+    {
+      "requested_amount": 0.15,
+      "structured_filter_sparsity": 0.15,
+      "top1": 0.5135869383811951,
+      "macro_f1": 0.5234887967400847,
+      "ece": 0.06876629590988159,
+      "examples": 736
+    },
+    {
+      "requested_amount": 0.3,
+      "structured_filter_sparsity": 0.3,
+      "top1": 0.03532608598470688,
+      "macro_f1": 0.017009993614610718,
+      "ece": 0.16202333569526672,
+      "examples": 736
+    }
+  ],
+  "latency_note": "Single-image inference p95 after warmup. CUDA entries synchronize the device; CPU entries use ONNX Runtime or converted FX INT8.",
+  "production_checkpoint_unchanged": "artifacts\\checkpoints\\resnet18.pt",
+  "results": [
+    {
+      "technique": "Baseline",
+      "model": "ResNet-18",
+      "top1": 0.89673912525177,
+      "macro_f1": 0.8975498051940944,
+      "ece": 0.1025199145078659,
+      "examples": 736,
+      "p95_latency_ms": 2.6357900409493595,
+      "size_mb": 42.78486156463623,
+      "hardware": "NVIDIA GeForce RTX 5050 Laptop GPU",
+      "model_path": "artifacts\\checkpoints\\resnet18.pt"
+    },
+    {
+      "technique": "Structured filter pruning (2%)",
+      "model": "ResNet-18",
+      "top1": 0.8899456262588501,
+      "macro_f1": 0.8902901098993689,
+      "ece": 0.11090366542339325,
+      "examples": 736,
+      "p95_latency_ms": 2.4286499829031527,
+      "size_mb": 42.78553295135498,
+      "hardware": "NVIDIA GeForce RTX 5050 Laptop GPU",
+      "model_path": "artifacts\\optimization\\resnet18_structured_pruned.pt",
+      "structured_filter_sparsity": 0.019791666666666666,
+      "pruning_amount": 0.02
+    },
+    {
+      "technique": "INT8 PTQ (static, stratified calibration)",
+      "model": "ResNet-18 ONNX",
+      "top1": 0.8994565010070801,
+      "macro_f1": 0.9001742603754737,
+      "ece": 0.1079653799533844,
+      "examples": 736,
+      "p95_latency_ms": 24.108170019462705,
+      "size_mb": 10.850334167480469,
+      "hardware": "CPU (Intel64 Family 6 Model 183 Stepping 1, GenuineIntel)",
+      "model_path": "artifacts\\models\\model_int8.onnx",
+      "calibration_samples": 148
+    },
+    {
+      "technique": "INT8 QAT (2 epochs)",
+      "model": "ResNet-18 FX",
+      "top1": 0.9008151888847351,
+      "macro_f1": 0.9014140294037797,
+      "ece": 0.07335393130779266,
+      "examples": 736,
+      "p95_latency_ms": 11.204600078053772,
+      "size_mb": 10.874030113220215,
+      "hardware": "CPU (Intel64 Family 6 Model 183 Stepping 1, GenuineIntel)",
+      "model_path": "artifacts\\optimization\\resnet18_qat_int8.pt"
+    },
+    {
+      "technique": "Supervised student baseline (pre-distillation)",
+      "model": "MobileNetV3-Small",
+      "top1": 0.84375,
+      "macro_f1": 0.843350722804476,
+      "ece": 0.19783031940460205,
+      "examples": 736,
+      "p95_latency_ms": 12.731659971177578,
+      "size_mb": 6.069172859191895,
+      "hardware": "NVIDIA GeForce RTX 5050 Laptop GPU",
+      "model_path": "artifacts\\checkpoints\\mobilenet_v3_small.pt"
+    },
+    {
+      "technique": "ResNet-50 to MobileNetV3-Small distillation",
+      "model": "MobileNetV3-Small",
+      "top1": 0.8682065010070801,
+      "macro_f1": 0.8692142913338825,
+      "ece": 0.2301747351884842,
+      "examples": 736,
+      "p95_latency_ms": 5.480070010526106,
+      "size_mb": 6.06862735748291,
+      "hardware": "NVIDIA GeForce RTX 5050 Laptop GPU",
+      "model_path": "artifacts\\optimization\\mobilenet_v3_small_distilled.pt",
+      "teacher_checkpoint": "artifacts\\experiments\\checkpoints\\resnet50_lr_0.001.pt",
+      "initial_student_checkpoint": "artifacts\\checkpoints\\mobilenet_v3_small.pt",
+      "distillation_epochs": 3,
+      "distillation_temperature": 3.0,
+      "distillation_weight": 0.3
+    },
+    {
+      "technique": "TensorRT FP16",
+      "model": "ResNet-18 TensorRT",
+      "top1": 0.89673912525177,
+      "macro_f1": 0.8975498051940944,
+      "ece": 0.10255791246891022,
+      "examples": 736,
+      "p95_latency_ms": 0.6904500187374651,
+      "size_mb": 21.668209075927734,
+      "hardware": "NVIDIA GeForce RTX 5050 Laptop GPU",
+      "model_path": "artifacts\\tensorrt\\resnet18_fp16.engine"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+groups:
+  - name: pet-breed-drift
+    rules:
+      - alert: PetBreedInputDrift
+        expr: pet_breed_drift_alert == 1
+        for: 0m
+        labels:
+          severity: warning
+        annotations:
+          summary: Pet-breed inference input or confidence drift detected
+          description: >-
+            A measured batch crossed its calibrated drift threshold. The batch
+            scoring process submits the detailed result to the Airflow API.

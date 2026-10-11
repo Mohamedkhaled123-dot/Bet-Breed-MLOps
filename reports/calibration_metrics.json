@@ -1,0 +1,11 @@
+{
+  "checkpoint": "artifacts\\checkpoints\\resnet18.pt",
+  "dataset": "validation",
+  "num_samples": 736,
+  "device": "NVIDIA GeForce RTX 5050 Laptop GPU",
+  "temperature": 0.8595333695411682,
+  "ece_before": 0.1025199145078659,
+  "ece_after": 0.06313320994377136,
+  "reliability_diagram": "reports\\calibration.png",
+  "reliability_bins": 15
+}

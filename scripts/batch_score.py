@@ -1,6 +1,10 @@
-from pathlib import Path
 import csv
+import json
+import subprocess
+import sys
+import tempfile
 import time
+from pathlib import Path
 
 import numpy as np
 import onnxruntime as ort
@@ -9,12 +13,11 @@ from PIL import Image
 from bet_breed_mlops.confidence import load_class_names, load_temperature
 from bet_breed_mlops.data import eval_transform
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 ONNX_PATH = PROJECT_ROOT / "artifacts" / "models" / "resnet18.onnx"
 TEST_DIR = PROJECT_ROOT / "data" / "raw" / "split" / "test"
-OUTPUT_PATH = PROJECT_ROOT / "artifacts" / "batch_predictions.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "scoring" / "output" / "batch_predictions.csv"
 
 NUM_IMAGES = 1000
 BATCH_SIZE = 32
@@ -34,7 +37,7 @@ def collect_images():
             f"Need at least {NUM_IMAGES} images, found {len(images)}."
         )
 
-    return images[:NUM_IMAGES]
+    return np.random.default_rng(20261008).permutation(images).tolist()[:NUM_IMAGES]
 
 
 def load_batch(paths):
@@ -135,6 +138,25 @@ def main():
 
         writer.writeheader()
         writer.writerows(predictions)
+
+    with tempfile.TemporaryDirectory(prefix="pet-breed-monitor-") as directory:
+        batch_paths_file = Path(directory) / "batch_paths.json"
+        batch_paths_file.write_text(
+            json.dumps({"image_paths": [str(path) for path in image_paths]}),
+            encoding="utf-8",
+        )
+        subprocess.run(
+            [
+                sys.executable,
+                str(PROJECT_ROOT / "scripts" / "monitor_corruptions.py"),
+                "--batch-paths",
+                str(batch_paths_file),
+                "--batch-id",
+                f"batch-score-{int(time.time())}",
+            ],
+            check=True,
+            cwd=PROJECT_ROOT,
+        )
 
     print("\nBatch Scoring Results")
     print("=====================")

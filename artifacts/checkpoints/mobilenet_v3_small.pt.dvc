@@ -1,0 +1,5 @@
+outs:
+- md5: 05c8b8385f0e041fcf31c3471e721e6c
+  size: 6363989
+  hash: md5
+  path: mobilenet_v3_small.pt

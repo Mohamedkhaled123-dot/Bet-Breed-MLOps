@@ -1,4 +1,2 @@
 [core]
     remote = local_remote
-['remote "local_remote"']
-    url = D:\DVC_Remote

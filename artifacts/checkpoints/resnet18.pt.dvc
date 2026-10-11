@@ -1,0 +1,5 @@
+outs:
+- md5: 65e89fcd56b8007a2e23d4bf35612856
+  size: 44863179
+  hash: md5
+  path: resnet18.pt

@@ -1,0 +1,5 @@
+outs:
+- md5: b2d40ffed82f6232e579f8bb675b6271
+  size: 94656891
+  hash: md5
+  path: resnet50_lr_0.001.pt

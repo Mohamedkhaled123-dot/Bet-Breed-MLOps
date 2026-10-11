@@ -1,0 +1,32 @@
+{
+  "images": 200,
+  "batch_size": 32,
+  "onnx_provider": "CPUExecutionProvider",
+  "onnx_cuda_providers": [
+    "CUDAExecutionProvider",
+    "CPUExecutionProvider"
+  ],
+  "cpu_pytorch_vs_onnx": {
+    "pytorch_device": "CPU",
+    "max_absolute_logit_difference": 1.1444091796875e-05,
+    "mean_absolute_logit_difference": 1.7585500923765671e-06,
+    "matching_top1_predictions": 200,
+    "top1_agreement": 1.0,
+    "passed": true
+  },
+  "cuda_pytorch_vs_onnx": {
+    "pytorch_device": "NVIDIA GeForce RTX 5050 Laptop GPU",
+    "onnx_provider": "CUDAExecutionProvider",
+    "max_absolute_logit_difference": 3.147125244140625e-05,
+    "mean_absolute_logit_difference": 5.759255004090232e-06,
+    "matching_top1_predictions": 200,
+    "top1_agreement": 1.0,
+    "passed": true
+  },
+  "cuda_pytorch_vs_onnx_cpu_diagnostic": {
+    "max_absolute_logit_difference": 2.574920654296875e-05,
+    "mean_absolute_logit_difference": 4.296421035620812e-06
+  },
+  "logit_tolerance": 0.0001,
+  "passed": true
+}

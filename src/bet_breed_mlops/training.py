@@ -36,6 +36,7 @@ CHECKPOINT_DIR.mkdir(
 
 SUPPORTED_BACKBONES = {
     "resnet18",
+    "resnet50",
     "mobilenet_v3_small",
     "efficientnet_b0",
 }

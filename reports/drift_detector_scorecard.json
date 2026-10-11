@@ -1,0 +1,796 @@
+{
+  "reference_examples": 148,
+  "reference_samples_per_class": 4,
+  "clean_threshold_calibration_batches": 23,
+  "clean_test_evaluation_batches": 115,
+  "corruption_examples_per_scenario": 3669,
+  "threshold_quantile": 0.95,
+  "thresholds": {
+    "embedding_mmd": 0.018030783511790147,
+    "pixel_statistics": 0.39450579748957254,
+    "confidence_psi": 2.198809603407693
+  },
+  "clean_false_alarms": {
+    "embedding_mmd": {
+      "flagged_batches": 2,
+      "batch_count": 115,
+      "false_alarm_rate": 0.017391304347826087
+    },
+    "pixel_statistics": {
+      "flagged_batches": 14,
+      "batch_count": 115,
+      "false_alarm_rate": 0.12173913043478261
+    },
+    "confidence_psi": {
+      "flagged_batches": 9,
+      "batch_count": 115,
+      "false_alarm_rate": 0.0782608695652174
+    }
+  },
+  "clean_evaluation_batch": {
+    "image_count": 3669,
+    "mean_scores": {
+      "embedding_mmd": 0.013958489132610141,
+      "pixel_statistics": 0.2473910382759195,
+      "confidence_psi": 0.9684476637277909
+    },
+    "drift_alerts": {
+      "embedding_mmd": false,
+      "pixel_statistics": false,
+      "confidence_psi": false
+    }
+  },
+  "corruption_scenarios": [
+    {
+      "corruption": "brightness_down",
+      "severity": 1,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 25,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.02616062537080377
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.227136464125973
+        },
+        "confidence_psi": {
+          "flagged_batches": 8,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.853507124487301
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.016660517036428676,
+        "pixel_statistics": 0.8477814679877499,
+        "confidence_psi": 0.9362062282482035
+      },
+      "batch_alerts": {
+        "embedding_mmd": false,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.02616062537080377,
+        "pixel_statistics": 0.9274520794718649,
+        "confidence_psi": 2.705369968292159
+      }
+    },
+    {
+      "corruption": "brightness_down",
+      "severity": 2,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 98,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.02861268672903816
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 2.0026129955861562
+        },
+        "confidence_psi": {
+          "flagged_batches": 17,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.314218180502606
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.02011448150241549,
+        "pixel_statistics": 1.6975388156571658,
+        "confidence_psi": 0.9888965892628134
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.02861268672903816,
+        "pixel_statistics": 1.727946045147145,
+        "confidence_psi": 2.6704335454963646
+      }
+    },
+    {
+      "corruption": "brightness_down",
+      "severity": 3,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.03769783753396716
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 2.775524169407206
+        },
+        "confidence_psi": {
+          "flagged_batches": 10,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 4.950303463800211
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.029749707530483144,
+        "pixel_statistics": 2.5704277931357513,
+        "confidence_psi": 1.1632383705058529
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.03769783753396716,
+        "pixel_statistics": 2.5902597787510904,
+        "confidence_psi": 0.43568379574945515
+      }
+    },
+    {
+      "corruption": "brightness_up",
+      "severity": 1,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 51,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.025901937890565385
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.5659333533605402
+        },
+        "confidence_psi": {
+          "flagged_batches": 7,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.4891335800997343
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.0177333076560008,
+        "pixel_statistics": 0.9724699977570866,
+        "confidence_psi": 1.0076652698983568
+      },
+      "batch_alerts": {
+        "embedding_mmd": false,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.025901937890565385,
+        "pixel_statistics": 0.7656783644088089,
+        "confidence_psi": 1.9589281258366247
+      }
+    },
+    {
+      "corruption": "brightness_up",
+      "severity": 2,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.03467593585707185
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 2.5658316204948868
+        },
+        "confidence_psi": {
+          "flagged_batches": 18,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 4.622664597562392
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.025533534673677038,
+        "pixel_statistics": 1.9079479149730483,
+        "confidence_psi": 1.464581384630044
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.03028732962292735,
+        "pixel_statistics": 1.621191568762295,
+        "confidence_psi": 0.4097001134491633
+      }
+    },
+    {
+      "corruption": "brightness_up",
+      "severity": 3,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.06751215918642872
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.4445273688629294
+        },
+        "confidence_psi": {
+          "flagged_batches": 113,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 8.94618417064673
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.049167533341606784,
+        "pixel_statistics": 2.909802672146559,
+        "confidence_psi": 4.990153248181481
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": true
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.048123862748448376,
+        "pixel_statistics": 2.7762432191980126,
+        "confidence_psi": 4.128686996900981
+      }
+    },
+    {
+      "corruption": "gaussian_blur",
+      "severity": 1,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.03424157999852273
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.0319676065403707
+        },
+        "confidence_psi": {
+          "flagged_batches": 12,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 4.757729083800016
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.027355799006881894,
+        "pixel_statistics": 0.923253106416149,
+        "confidence_psi": 1.0301825301541905
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.03424157999852273,
+        "pixel_statistics": 0.9938187114218764,
+        "confidence_psi": 0.21830740267789425
+      }
+    },
+    {
+      "corruption": "gaussian_blur",
+      "severity": 2,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.05099964637212495
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.2155243368518314
+        },
+        "confidence_psi": {
+          "flagged_batches": 27,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 5.963842756647568
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.04199867618050127,
+        "pixel_statistics": 1.159213877539306,
+        "confidence_psi": 1.6618249442902149
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.05044942883775616,
+        "pixel_statistics": 1.1777284450851984,
+        "confidence_psi": 0.40537519185536397
+      }
+    },
+    {
+      "corruption": "gaussian_blur",
+      "severity": 3,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.07293325196119138
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.2807540124833074
+        },
+        "confidence_psi": {
+          "flagged_batches": 102,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 7.964488818262627
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.06221749889405291,
+        "pixel_statistics": 1.2445386551542839,
+        "confidence_psi": 3.7912256420066988
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": true
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.07032110904660493,
+        "pixel_statistics": 1.254698480917748,
+        "confidence_psi": 2.248070913754206
+      }
+    },
+    {
+      "corruption": "jpeg",
+      "severity": 1,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 91,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.02811120254533317
+        },
+        "pixel_statistics": {
+          "flagged_batches": 15,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.8600357407280999
+        },
+        "confidence_psi": {
+          "flagged_batches": 9,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 4.722652538154507
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.019951014313287798,
+        "pixel_statistics": 0.26211336823891884,
+        "confidence_psi": 0.961468172043403
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": false,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.02811120254533317,
+        "pixel_statistics": 0.43858224259990364,
+        "confidence_psi": 1.2968497822023086
+      }
+    },
+    {
+      "corruption": "jpeg",
+      "severity": 2,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 110,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.028821108013375563
+        },
+        "pixel_statistics": {
+          "flagged_batches": 33,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.6401881460891148
+        },
+        "confidence_psi": {
+          "flagged_batches": 5,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.2122094937699583
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.021121984779902493,
+        "pixel_statistics": 0.3242296593468113,
+        "confidence_psi": 0.8295245583442726
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": false,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.028821108013375563,
+        "pixel_statistics": 0.6105839856184699,
+        "confidence_psi": 0.3120988674829513
+      }
+    },
+    {
+      "corruption": "jpeg",
+      "severity": 3,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.032107262627326216
+        },
+        "pixel_statistics": {
+          "flagged_batches": 54,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.7097520113637155
+        },
+        "confidence_psi": {
+          "flagged_batches": 8,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.312981839781273
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.025911233464532262,
+        "pixel_statistics": 0.3925473397142681,
+        "confidence_psi": 0.9607160776634283
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": false,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.031469757150665245,
+        "pixel_statistics": 0.6558823161916818,
+        "confidence_psi": 1.523691527235558
+      }
+    },
+    {
+      "corruption": "low_resolution",
+      "severity": 1,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.039770206662363305
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.0873499027358764
+        },
+        "confidence_psi": {
+          "flagged_batches": 12,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.413075703425833
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.03146222060704216,
+        "pixel_statistics": 1.0005932505759476,
+        "confidence_psi": 0.9862755379165425
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.039770206662363305,
+        "pixel_statistics": 1.0615182495220723,
+        "confidence_psi": 3.0007837823937544
+      }
+    },
+    {
+      "corruption": "low_resolution",
+      "severity": 2,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.05119385002189669
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.1858600274051379
+        },
+        "confidence_psi": {
+          "flagged_batches": 17,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 4.239610634795365
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.04174134394193922,
+        "pixel_statistics": 1.1233069621037177,
+        "confidence_psi": 1.3100989976330948
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.05119385002189669,
+        "pixel_statistics": 1.1565779656116013,
+        "confidence_psi": 1.3125966825771573
+      }
+    },
+    {
+      "corruption": "low_resolution",
+      "severity": 3,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.06880890898795533
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.2422660739435925
+        },
+        "confidence_psi": {
+          "flagged_batches": 47,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 5.459300652802021
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.058214193689277265,
+        "pixel_statistics": 1.1908709067664782,
+        "confidence_psi": 2.2008116008268117
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": true
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.06698741247555651,
+        "pixel_statistics": 1.2136290964047007,
+        "confidence_psi": 2.9481990521600894
+      }
+    },
+    {
+      "corruption": "motion_blur",
+      "severity": 1,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 91,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.02688835909280196
+        },
+        "pixel_statistics": {
+          "flagged_batches": 114,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.7986638719898431
+        },
+        "confidence_psi": {
+          "flagged_batches": 8,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.3985607114427285
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.01973683037735386,
+        "pixel_statistics": 0.5888383722073944,
+        "confidence_psi": 0.8755011818110772
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.02688835909280196,
+        "pixel_statistics": 0.7914981822166591,
+        "confidence_psi": 0.5982220886799595
+      }
+    },
+    {
+      "corruption": "motion_blur",
+      "severity": 2,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.03382596419616979
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.9230483503233524
+        },
+        "confidence_psi": {
+          "flagged_batches": 12,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 5.110949671427645
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.026563468882083417,
+        "pixel_statistics": 0.7695286865551465,
+        "confidence_psi": 1.1186281483660583
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.0324882557479611,
+        "pixel_statistics": 0.9204228872536289,
+        "confidence_psi": 0.2892386458391677
+      }
+    },
+    {
+      "corruption": "motion_blur",
+      "severity": 3,
+      "image_count": 3669,
+      "batch_count": 115,
+      "detectors": {
+        "embedding_mmd": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 0.04133210682605082
+        },
+        "pixel_statistics": {
+          "flagged_batches": 115,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 1.0024567238009758
+        },
+        "confidence_psi": {
+          "flagged_batches": 16,
+          "batch_count": 115,
+          "detected": true,
+          "max_score": 3.79636381362541
+        }
+      },
+      "batch_mean_scores": {
+        "embedding_mmd": 0.032789790120650204,
+        "pixel_statistics": 0.8736999286673395,
+        "confidence_psi": 1.2082678105695495
+      },
+      "batch_alerts": {
+        "embedding_mmd": true,
+        "pixel_statistics": true,
+        "confidence_psi": false
+      },
+      "latest_scores": {
+        "embedding_mmd": 0.03689207397540173,
+        "pixel_statistics": 0.9968112722255733,
+        "confidence_psi": 0.35899136780868507
+      }
+    }
+  ],
+  "caught_scenarios": {
+    "embedding_mmd": 18,
+    "pixel_statistics": 18,
+    "confidence_psi": 18
+  },
+  "batch_caught_scenarios": {
+    "embedding_mmd": 16,
+    "pixel_statistics": 15,
+    "confidence_psi": 3
+  },
+  "total_corruption_scenarios": 18,
+  "scorecard_unit": "Sensitivity and clean false-alarm rates are reported per 32-image inference microbatch; whole-batch alerts aggregate the mean score across all microbatches.",
+  "evidently_report": "reports\\evidently\\latest_batch_drift.html"
+}

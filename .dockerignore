@@ -1,6 +1,8 @@
 .git
 .github
 
+.dvc
+
 .venv
 
 __pycache__
@@ -30,3 +32,6 @@ dvc.yaml
 dvc.lock
 .dvcignore
 .gitignore
+
+!artifacts/checkpoints/
+!artifacts/checkpoints/resnet18.pt
