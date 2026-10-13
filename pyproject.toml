@@ -51,6 +51,13 @@ torchvision = { index = "pytorch-cpu" }
 
 [dependency-groups]
 dev = [
+    "dvc-gdrive>=3.0.1",
     "locust>=2.46.7",
     "ruff>=0.16.10",
 ]
+
+
+
+[tool.pytest.ini_options]
+pythonpath = [".", "src"]
+testpaths = ["tests"]
