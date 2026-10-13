@@ -1,4 +1,5 @@
-﻿name: CI-CD
+﻿
+name: CI-CD
 
 on:
   push:
@@ -32,7 +33,9 @@ jobs:
         uses: astral-sh/setup-uv@v6
 
       - name: Install Dependencies
-        run: uv sync --frozen --dev
+        run: |
+          uv sync --frozen --dev
+          uv pip install --python .venv/bin/python "dvc[gdrive]"
 
       - name: Configure Google Drive Credentials
         shell: bash
@@ -44,9 +47,11 @@ jobs:
             echo "::error::Missing secret GDRIVE_SERVICE_ACCOUNT_JSON"
             exit 1
           fi
+
           credentials_file="$RUNNER_TEMP/gdrive-service-account.json"
           printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$credentials_file"
           chmod 600 "$credentials_file"
+
           uv run dvc remote modify --local "$DVC_REMOTE" gdrive_use_service_account true
           uv run dvc remote modify --local "$DVC_REMOTE" gdrive_service_account_json_file_path "$credentials_file"
 
@@ -93,9 +98,11 @@ jobs:
             echo "::error::Missing secret GDRIVE_SERVICE_ACCOUNT_JSON"
             exit 1
           fi
+
           credentials_file="$RUNNER_TEMP/gdrive-service-account.json"
           printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$credentials_file"
           chmod 600 "$credentials_file"
+
           dvc remote modify --local "$DVC_REMOTE" gdrive_use_service_account true
           dvc remote modify --local "$DVC_REMOTE" gdrive_service_account_json_file_path "$credentials_file"
 
