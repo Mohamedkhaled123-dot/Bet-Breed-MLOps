@@ -68,7 +68,6 @@ backups/
 /reports/evidently/latest_batch_drift.html
 
 # CI/CD workflow deferred until configuration is ready
-/.github/workflows/ci.yml
 
 # Small deployment calibration artifact
 !artifacts/calibration/
