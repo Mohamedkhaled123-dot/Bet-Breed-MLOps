@@ -35,8 +35,10 @@ jobs:
       - name: Install Dependencies
         run: |
           uv sync --frozen --dev
-          uv pip install --python .venv/bin/python "dvc[gdrive]" "pyOpenSSL==24.2.1"
+          uv pip install --python .venv/bin/python "dvc[gdrive]" "pyOpenSSL==24.2.1" "cryptography==42.0.8"
 
+      - name: Pull DVC Data
+        run: uv run --no-sync dvc pull --remote "$DVC_REMOTE"
       - name: Diagnose Google Drive Dependencies
         run: |
           uv pip show --python .venv/bin/python pyOpenSSL cryptography oauth2client google-auth google-auth-httplib2 PyDrive2 dvc-gdrive
@@ -88,8 +90,10 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
+      
       - name: Install DVC
-        run: uv tool install "dvc[gdrive]"
+        run: uv tool install "dvc[gdrive]" --with "pyOpenSSL==24.2.1" --with "cryptography==42.0.8"
+
 
       - name: Configure Google Drive Credentials
         shell: bash
