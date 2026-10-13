@@ -35,7 +35,7 @@ jobs:
       - name: Install Dependencies
         run: |
           uv sync --frozen --dev
-          uv pip install --python .venv/bin/python "dvc[gdrive]"
+          uv pip install --python .venv/bin/python "dvc[gdrive]" "pyOpenSSL>=24.2.1"
 
       - name: Configure Google Drive Credentials
         shell: bash
