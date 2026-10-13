@@ -39,7 +39,7 @@ jobs:
 
       - name: Diagnose Google Drive Dependencies
         run: |
-          uv run python -m pip show pyOpenSSL cryptography oauth2client google-auth google-auth-httplib2 PyDrive2 dvc-gdrive
+          uv pip show --python .venv/bin/python pyOpenSSL cryptography oauth2client google-auth google-auth-httplib2 PyDrive2 dvc-gdrive
           uv run python -c "import OpenSSL, cryptography; print('pyOpenSSL:', OpenSSL.__version__); print('cryptography:', cryptography.__version__)"
 
       - name: Configure Google Drive Credentials
