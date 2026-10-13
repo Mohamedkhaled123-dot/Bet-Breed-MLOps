@@ -32,18 +32,7 @@ jobs:
         uses: astral-sh/setup-uv@v6
 
       - name: Install Dependencies
-        run: |
-          uv sync --frozen --dev
-          uv pip install --python .venv/bin/python \
-            "dvc[gdrive]" \
-            "pyOpenSSL==24.2.1" \
-            "cryptography==42.0.8"
-
-      - name: Diagnose Google Drive Dependencies
-        run: |
-          uv pip show --python .venv/bin/python \
-            pyOpenSSL cryptography oauth2client \
-            google-auth google-auth-httplib2 PyDrive2 dvc-gdrive
+        run: uv sync --frozen --dev
 
       - name: Configure Google Drive Credentials
         shell: bash
@@ -68,8 +57,12 @@ jobs:
             "$DVC_REMOTE" gdrive_service_account_json_file_path "$credentials_file"
 
       - name: Pull DVC Data
-        run: uv run --no-sync dvc pull --remote "$DVC_REMOTE"
+        run: uv run --no-sync python scripts/dvc_with_http_timeout.py pull --remote "$DVC_REMOTE"
 
+      - name: Remove Google Drive Credentials
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/gdrive-service-account.json"
       - name: Run Ruff
         run: uv run --no-sync ruff check src scripts tests
 
@@ -78,6 +71,11 @@ jobs:
 
       - name: Run Model Quality Gate
         run: uv run --no-sync python scripts/quality_gate.py
+
+      - name: Remove Google Drive Credentials
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/gdrive-service-account.json"
 
   build-and-push:
     name: Build and Push ONNX CPU Image
@@ -97,11 +95,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
 
-      - name: Install DVC
-        run: |
-          uv tool install "dvc[gdrive]" \
-            --with "pyOpenSSL==24.2.1" \
-            --with "cryptography==42.0.8"
+      - name: Install Locked Dependencies
+        run: uv sync --frozen --dev
 
       - name: Configure Google Drive Credentials
         shell: bash
@@ -119,14 +114,19 @@ jobs:
           printf '%s' "$GDRIVE_SERVICE_ACCOUNT_JSON" > "$credentials_file"
           chmod 600 "$credentials_file"
 
-          dvc remote modify --local \
+          uv run --no-sync dvc remote modify --local \
             "$DVC_REMOTE" gdrive_use_service_account true
 
-          dvc remote modify --local \
+          uv run --no-sync dvc remote modify --local \
             "$DVC_REMOTE" gdrive_service_account_json_file_path "$credentials_file"
 
       - name: Pull DVC Model Artifacts
-        run: dvc pull --remote "$DVC_REMOTE"
+        run: uv run --no-sync python scripts/dvc_with_http_timeout.py pull --remote "$DVC_REMOTE"
+
+      - name: Remove Google Drive Credentials After Pull
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/gdrive-service-account.json"
 
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -144,3 +144,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE_NAME }}:latest
+
+      - name: Remove Google Drive Credentials
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/gdrive-service-account.json"
